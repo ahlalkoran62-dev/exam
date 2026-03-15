@@ -1,1 +1,634 @@
+<!doctype html>
+<html lang="ar" dir="rtl" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>اختبار صفة القِدم</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&amp;family=Noto+Kufi+Arabic:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
 
+    .font-amiri { font-family: 'Amiri', serif; }
+    .font-kufi { font-family: 'Noto Kufi Arabic', sans-serif; }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes slideRight {
+      from { opacity: 0; transform: translateX(-30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); }
+      50% { box-shadow: 0 0 30px rgba(212, 175, 55, 0.6); }
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+    .animate-fade-in { animation: fadeInUp 0.6s ease-out forwards; }
+    .animate-scale-in { animation: scaleIn 0.4s ease-out forwards; }
+    .animate-slide { animation: slideRight 0.5s ease-out forwards; }
+    .pulse-border { animation: pulse-glow 2s ease-in-out infinite; }
+
+    .option-btn {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 2px solid #2a2a3e;
+      position: relative;
+      overflow: hidden;
+    }
+    .option-btn::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(135deg, rgba(212,175,55,0.05), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .option-btn:hover::before { opacity: 1; }
+    .option-btn:hover {
+      border-color: #d4af37;
+      transform: translateX(-4px);
+      box-shadow: 0 4px 20px rgba(212,175,55,0.15);
+    }
+    .option-btn.selected {
+      border-color: #d4af37;
+      background: linear-gradient(135deg, rgba(212,175,55,0.1), rgba(212,175,55,0.05));
+    }
+    .option-btn.correct {
+      border-color: #10b981 !important;
+      background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.05)) !important;
+    }
+    .option-btn.wrong {
+      border-color: #ef4444 !important;
+      background: linear-gradient(135deg, rgba(239,68,68,0.15), rgba(239,68,68,0.05)) !important;
+    }
+
+    .fill-input {
+      border-bottom: 2px dashed #d4af37;
+      background: transparent;
+      color: #e8d5a3;
+      outline: none;
+      min-width: 120px;
+      text-align: center;
+      padding: 2px 8px;
+      transition: border-color 0.3s;
+    }
+    .fill-input:focus {
+      border-bottom-color: #f0c040;
+    }
+    .fill-input.correct-fill {
+      border-bottom-color: #10b981;
+      color: #10b981;
+    }
+    .fill-input.wrong-fill {
+      border-bottom-color: #ef4444;
+      color: #ef4444;
+    }
+
+    .progress-fill {
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      background: linear-gradient(90deg, #d4af37, #f0c040, #d4af37);
+      background-size: 200% 100%;
+      animation: shimmer 3s linear infinite;
+    }
+
+    .geometric-pattern {
+      background-image:
+        radial-gradient(circle at 20% 50%, rgba(212,175,55,0.03) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(212,175,55,0.04) 0%, transparent 40%),
+        radial-gradient(circle at 50% 80%, rgba(139,92,246,0.03) 0%, transparent 50%);
+    }
+
+    .star-decoration::before {
+      content: '✦';
+      color: #d4af37;
+      opacity: 0.4;
+      font-size: 10px;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: #1a1a2e; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #d4af3755; border-radius: 3px; }
+
+    textarea.fill-input {
+      border: 2px dashed #d4af37;
+      border-radius: 8px;
+      padding: 10px;
+      width: 100%;
+      resize: vertical;
+      min-height: 80px;
+      text-align: right;
+    }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full font-kufi">
+  <div id="app" class="h-full w-full overflow-auto scrollbar-thin geometric-pattern" style="background-color: #0f0f23;"><!-- Start Screen -->
+   <div id="startScreen" class="h-full flex items-center justify-center p-4">
+    <div class="text-center animate-scale-in max-w-lg w-full">
+     <div class="mb-6">
+      <div class="w-24 h-24 mx-auto rounded-full flex items-center justify-center pulse-border" style="background: linear-gradient(135deg, #1a1a3e, #2a2a4e); border: 2px solid #d4af37;"><span class="text-4xl">📖</span>
+      </div>
+     </div>
+     <h1 id="mainTitle" class="text-3xl md:text-4xl font-bold mb-3 font-amiri" style="color: #d4af37;">اختبار في صفة القِدم</h1>
+     <p class="text-sm md:text-base mb-2" style="color: #8a8aae;">من مبحث الصفات الواجبة لله تعالى</p>
+     <div class="flex items-center justify-center gap-4 mb-8 text-xs" style="color: #6a6a8e;"><span class="flex items-center gap-1"><i data-lucide="help-circle" style="width:14px;height:14px;"></i> 15 سؤال</span> <span class="star-decoration"></span> <span class="flex items-center gap-1"><i data-lucide="clock" style="width:14px;height:14px;"></i> بدون وقت</span> <span class="star-decoration"></span> <span class="flex items-center gap-1"><i data-lucide="award" style="width:14px;height:14px;"></i> متنوع</span>
+     </div><button id="startBtn" onclick="startExam()" class="px-10 py-3 rounded-xl font-bold text-lg transition-all hover:scale-105 active:scale-95" style="background: linear-gradient(135deg, #d4af37, #b8952e); color: #0f0f23;"> ابدأ الاختبار </button>
+    </div>
+   </div><!-- Exam Screen -->
+   <div id="examScreen" class="h-full flex flex-col" style="display:none;"><!-- Header -->
+    <header class="p-4 border-b" style="border-color: #1a1a3e; background: rgba(15,15,35,0.95);">
+     <div class="max-w-3xl mx-auto">
+      <div class="flex items-center justify-between mb-3"><span id="qCounter" class="text-sm font-bold" style="color: #d4af37;">١ / ١٥</span> <span id="scoreDisplay" class="text-sm" style="color: #8a8aae;">الدرجة: <span id="currentScore" style="color:#d4af37;">٠</span></span>
+      </div>
+      <div class="w-full h-2 rounded-full overflow-hidden" style="background: #1a1a3e;">
+       <div id="progressBar" class="h-full rounded-full progress-fill" style="width: 6.66%;"></div>
+      </div>
+     </div>
+    </header><!-- Question Area -->
+    <main class="flex-1 overflow-auto p-4 scrollbar-thin">
+     <div id="questionArea" class="max-w-3xl mx-auto"></div>
+    </main><!-- Footer -->
+    <footer class="p-4 border-t" style="border-color: #1a1a3e; background: rgba(15,15,35,0.95);">
+     <div class="max-w-3xl mx-auto flex justify-between items-center"><button id="prevBtn" onclick="prevQuestion()" class="px-5 py-2 rounded-lg text-sm transition-all hover:opacity-80 disabled:opacity-30" style="background: #1a1a3e; color: #8a8aae;" disabled> السابق </button>
+      <div id="feedbackMsg" class="text-sm font-bold hidden"></div><button id="nextBtn" onclick="nextQuestion()" class="px-5 py-2 rounded-lg text-sm font-bold transition-all hover:opacity-90" style="background: linear-gradient(135deg, #d4af37, #b8952e); color: #0f0f23;"> التالي </button>
+     </div>
+    </footer>
+   </div><!-- Result Screen -->
+   <div id="resultScreen" class="h-full flex items-center justify-center p-4" style="display:none;">
+    <div class="text-center animate-scale-in max-w-lg w-full">
+     <div id="resultIcon" class="text-6xl mb-4"></div>
+     <h2 class="text-2xl font-bold mb-2 font-amiri" style="color: #d4af37;">نتيجة الاختبار</h2>
+     <div id="resultScore" class="text-5xl font-bold my-4" style="color: #e8d5a3;"></div>
+     <p id="resultMsg" class="text-sm mb-6" style="color: #8a8aae;"></p>
+     <div id="resultDetails" class="rounded-xl p-4 mb-6 text-right text-sm" style="background: #1a1a3e; color: #8a8aae;"></div>
+     <div class="flex gap-3 justify-center"><button onclick="reviewAnswers()" class="px-6 py-2 rounded-lg text-sm transition-all hover:opacity-80" style="background: #2a2a4e; color: #d4af37; border: 1px solid #d4af3744;"> مراجعة الإجابات </button> <button onclick="restartExam()" class="px-6 py-2 rounded-lg text-sm font-bold transition-all hover:opacity-90" style="background: linear-gradient(135deg, #d4af37, #b8952e); color: #0f0f23;"> إعادة الاختبار </button>
+     </div>
+    </div>
+   </div><!-- Review Screen -->
+   <div id="reviewScreen" class="h-full flex flex-col" style="display:none;">
+    <header class="p-4 border-b" style="border-color: #1a1a3e; background: rgba(15,15,35,0.95);">
+     <div class="max-w-3xl mx-auto flex items-center justify-between">
+      <h2 class="text-lg font-bold font-amiri" style="color: #d4af37;">مراجعة الإجابات</h2><button onclick="showResult()" class="px-4 py-1 rounded-lg text-sm" style="background: #2a2a4e; color: #8a8aae;"> العودة للنتيجة </button>
+     </div>
+    </header>
+    <main id="reviewArea" class="flex-1 overflow-auto p-4 scrollbar-thin">
+     <div class="max-w-3xl mx-auto space-y-6" id="reviewContent"></div>
+    </main>
+   </div>
+  </div>
+  <script>
+    // Questions data
+    const questions = [
+      {
+        id: 1,
+        type: 'mcq',
+        question: 'من أي أنواع الصفات صفة القِدم؟',
+        options: ['صفات المعاني', 'الصفات السلبية', 'الصفات المعنوية', 'الصفات الجامعة'],
+        correct: 1,
+        explanation: 'صفة القِدم من الصفات السلبية، وهي التي تنفي عن الله تعالى ما لا يليق بذاته العلية.'
+      },
+      {
+        id: 2,
+        type: 'mcq',
+        question: 'ما معنى صفة القِدم؟',
+        options: ['أنه تعالى موجود بذاته', 'عدم بداية وجود الله سبحانه وتعالى أو عدم افتتاح الوجود', 'أنه تعالى باقٍ لا نهاية لوجوده', 'أنه تعالى مخالف للحوادث'],
+        correct: 1,
+        explanation: 'القِدم معناه عدم بداية وجود الله سبحانه وتعالى، أي عدم افتتاح الوجود.'
+      },
+      {
+        id: 3,
+        type: 'mcq',
+        question: 'ما ضد صفة القِدم؟',
+        options: ['العدم', 'الفناء', 'الحدوث', 'النقص'],
+        correct: 2,
+        explanation: 'ضد القِدم هو الحدوث، وهو الوجود المسبوق بالعدم.'
+      },
+      {
+        id: 4,
+        type: 'mcq',
+        question: 'بمَ تُسمى صفة القِدم أيضًا؟ ولماذا؟',
+        options: ['الأزلية - لأنه لا نهاية لوجوده', 'الأوّلية - لأنها تدل على أنه تعالى هو الأول الذي ليس قبله شيء', 'الأبدية - لأنه باقٍ أبدًا', 'السرمدية - لأنه لا بداية ولا نهاية لوجوده'],
+        correct: 1,
+        explanation: 'تُسمى صفة القِدم بالأوّلية؛ لأنها تدل على أنه تعالى هو الأول الذي ليس قبله شيء.'
+      },
+      {
+        id: 5,
+        type: 'mcq',
+        question: 'ما الدليل النقلي على صفة القِدم؟',
+        options: ['﴿ وَهُوَ الْعَلِيُّ الْعَظِيمُ ﴾', '﴿ هُوَ الْأَوَّلُ وَالْآخِرُ ﴾', '﴿ لَيْسَ كَمِثْلِهِ شَيْءٌ ﴾', '﴿ كُلُّ شَيْءٍ هَالِكٌ إِلَّا وَجْهَهُ ﴾'],
+        correct: 1,
+        explanation: 'الدليل النقلي قوله تعالى: ﴿ هُوَ الْأَوَّلُ وَالْآخِرُ ﴾ فوصف نفسه بالأول دليل على القِدم.'
+      },
+      {
+        id: 6,
+        type: 'mcq',
+        question: 'ما الدليل العقلي على صفة القِدم؟',
+        options: ['لأنه لو لم يكن قديمًا لكان ناقصًا', 'لأنه لو لم يكن قديمًا لكان حادثًا، ولو كان حادثًا لاحتاج إلى مُحدِث وهذا يؤدي إلى التسلسل المحال', 'لأن العقل يدل على أن كل موجود لا بد أن يكون قديمًا', 'لأنه واجب الوجود بالضرورة'],
+        correct: 1,
+        explanation: 'لو لم يكن قديمًا لكان حادثًا، ولو كان حادثًا لكان مسبوق الوجود بالعدم مع أنه قد ثبت أنه واجب الوجود فبطل ما يخالف ذلك.'
+      },
+      {
+        id: 7,
+        type: 'mcq',
+        question: 'ما هو القِدم الذاتي؟',
+        options: ['سبق الشيء في الوجود لشيء آخر', 'ما لا أول له سواء كان وجوديًا أو عدميًا', 'عدم افتتاح الوجود وهو القِدم الحقيقي', 'طول مدة وجود الشيء'],
+        correct: 2,
+        explanation: 'القِدم الذاتي هو عدم افتتاح الوجود، وهو القِدم الحقيقي الثابت لله تعالى.'
+      },
+      {
+        id: 8,
+        type: 'mcq',
+        question: 'ما هو القِدم الزماني؟ وما حكمه في حق الله تعالى؟',
+        options: ['هو عدم افتتاح الوجود - واجب في حقه', 'هو طول مدة وجود الشيء - مستحيل في حقه تعالى لأنه يتضمن الزمن', 'هو سبق الشيء على غيره - جائز في حقه', 'هو الوجود بلا نهاية - واجب في حقه'],
+        correct: 1,
+        explanation: 'القِدم الزماني هو طول مدة وجود الشيء، وهو مستحيل في حق الله تعالى لأنه يتضمن خضوعه للزمن تعالى الله عن ذلك.'
+      },
+      {
+        id: 9,
+        type: 'mcq',
+        question: 'ما هو القِدم الإضافي؟',
+        options: ['عدم افتتاح الوجود', 'طول مدة وجود الشيء', 'سبق الشيء في الوجود لشيء آخر', 'ما لا أول له'],
+        correct: 2,
+        explanation: 'القِدم الإضافي هو سبق الشيء في الوجود لشيء آخر، كقولنا الأب أقدم من الابن.'
+      },
+      {
+        id: 10,
+        type: 'mcq',
+        question: 'ما المعنى الذي تدل عليه عبارة (عرجون قديم) في القرآن؟',
+        options: ['القِدم الذاتي (عدم البداية)', 'القِدم الزماني (طول المدة)', 'القِدم الإضافي (السبق النسبي)', 'الأزلية المطلقة'],
+        correct: 1,
+        explanation: '(عرجون قديم) تدل على القِدم الزماني أي طول مدة وجوده حتى انحنى ويبس.'
+      },
+      {
+        id: 11,
+        type: 'mcq',
+        question: 'ما الفرق بين القديم والأزلي؟',
+        options: ['لا فرق بينهما مطلقًا', 'القديم أعم من الأزلي لأنه يشمل الذاتي والزماني والإضافي، والأزلي ما لا أول له سواء كان وجوديًا أو عدميًا', 'الأزلي أعم من القديم', 'القديم للموجودات فقط والأزلي للمعدومات فقط'],
+        correct: 1,
+        explanation: 'القديم أعم لأنه يشمل أنواعًا ثلاثة (ذاتي وزماني وإضافي)، أما الأزلي فهو ما لا أول له سواء كان وجوديًا أو عدميًا.'
+      },
+      {
+        id: 12,
+        type: 'mcq',
+        question: 'الحدوث هو:',
+        options: ['عدم افتتاح الوجود', 'الوجود المسبوق بالعدم', 'سبق الشيء لغيره', 'طول مدة الوجود'],
+        correct: 1,
+        explanation: 'الحدوث هو الوجود المسبوق بالعدم، وهو ضد القِدم.'
+      },
+      {
+        id: 13,
+        type: 'fill',
+        question: 'وصف نفسه سبحانه بالأول دليل على ________ وبالآخر دليل على ________.',
+        blanks: ['القِدم', 'البقاء'],
+        explanation: 'قوله تعالى ﴿هُوَ الْأَوَّلُ وَالْآخِرُ﴾ الأول يدل على القِدم والآخر يدل على البقاء.'
+      },
+      {
+        id: 14,
+        type: 'fill',
+        question: 'الأزلي: ما لا أول له سواء كان ________ أو ________.',
+        blanks: ['وجوديًا', 'عدميًا'],
+        explanation: 'الأزلي ما لا أول له سواء كان وجوديًا (كذات الله وصفاته) أو عدميًا (كعدم الشريك لله).'
+      },
+      {
+        id: 15,
+        type: 'fill',
+        question: 'الله سبحانه لو لم يكن قديمًا لكان حادثًا ولو كان حادثًا لكان ________ الوجود مع أنه قد ثبت أنه ________ الوجود.',
+        blanks: ['مسبوق', 'واجب'],
+        explanation: 'هذا هو الدليل العقلي على القِدم: لو لم يكن قديمًا لكان حادثًا مسبوق الوجود بالعدم، لكنه واجب الوجود فبطل ذلك.'
+      }
+    ];
+
+    let currentQ = 0;
+    let score = 0;
+    let answers = new Array(questions.length).fill(null);
+    let answered = new Array(questions.length).fill(false);
+    let isReviewMode = false;
+
+    const defaultConfig = {
+      exam_title: 'اختبار في صفة القِدم',
+      background_color: '#0f0f23',
+      surface_color: '#1a1a3e',
+      text_color: '#e8d5a3',
+      primary_action_color: '#d4af37',
+      secondary_action_color: '#8a8aae',
+      font_family: 'Noto Kufi Arabic',
+      font_size: 16
+    };
+
+    function applyConfig(config) {
+      const bg = config.background_color || defaultConfig.background_color;
+      const surface = config.surface_color || defaultConfig.surface_color;
+      const text = config.text_color || defaultConfig.text_color;
+      const primary = config.primary_action_color || defaultConfig.primary_action_color;
+      const secondary = config.secondary_action_color || defaultConfig.secondary_action_color;
+      const font = config.font_family || defaultConfig.font_family;
+      const fontSize = config.font_size || defaultConfig.font_size;
+      const title = config.exam_title || defaultConfig.exam_title;
+
+      const app = document.getElementById('app');
+      app.style.backgroundColor = bg;
+
+      const mainTitle = document.getElementById('mainTitle');
+      if (mainTitle) {
+        mainTitle.textContent = title;
+        mainTitle.style.color = primary;
+      }
+
+      document.querySelectorAll('.font-kufi').forEach(el => {
+        el.style.fontFamily = `${font}, 'Noto Kufi Arabic', sans-serif`;
+      });
+
+      document.body.style.fontFamily = `${font}, 'Noto Kufi Arabic', sans-serif`;
+      document.body.style.fontSize = fontSize + 'px';
+    }
+
+    // Element SDK
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange: async (config) => { applyConfig(config); },
+        mapToCapabilities: (config) => ({
+          recolorables: [
+            { get: () => config.background_color || defaultConfig.background_color, set: (v) => { config.background_color = v; window.elementSdk.setConfig({ background_color: v }); } },
+            { get: () => config.surface_color || defaultConfig.surface_color, set: (v) => { config.surface_color = v; window.elementSdk.setConfig({ surface_color: v }); } },
+            { get: () => config.text_color || defaultConfig.text_color, set: (v) => { config.text_color = v; window.elementSdk.setConfig({ text_color: v }); } },
+            { get: () => config.primary_action_color || defaultConfig.primary_action_color, set: (v) => { config.primary_action_color = v; window.elementSdk.setConfig({ primary_action_color: v }); } },
+            { get: () => config.secondary_action_color || defaultConfig.secondary_action_color, set: (v) => { config.secondary_action_color = v; window.elementSdk.setConfig({ secondary_action_color: v }); } }
+          ],
+          borderables: [],
+          fontEditable: {
+            get: () => config.font_family || defaultConfig.font_family,
+            set: (v) => { config.font_family = v; window.elementSdk.setConfig({ font_family: v }); }
+          },
+          fontSizeable: {
+            get: () => config.font_size || defaultConfig.font_size,
+            set: (v) => { config.font_size = v; window.elementSdk.setConfig({ font_size: v }); }
+          }
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ['exam_title', config.exam_title || defaultConfig.exam_title]
+        ])
+      });
+    }
+
+    function toArabicNum(n) {
+      return n.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+    }
+
+    function startExam() {
+      document.getElementById('startScreen').style.display = 'none';
+      document.getElementById('examScreen').style.display = 'flex';
+      currentQ = 0;
+      score = 0;
+      answers = new Array(questions.length).fill(null);
+      answered = new Array(questions.length).fill(false);
+      isReviewMode = false;
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const q = questions[currentQ];
+      const area = document.getElementById('questionArea');
+
+      document.getElementById('qCounter').textContent = `${toArabicNum(currentQ + 1)} / ${toArabicNum(questions.length)}`;
+      document.getElementById('progressBar').style.width = `${((currentQ + 1) / questions.length) * 100}%`;
+      document.getElementById('currentScore').textContent = toArabicNum(score);
+      document.getElementById('prevBtn').disabled = currentQ === 0;
+
+      const nextBtn = document.getElementById('nextBtn');
+      nextBtn.textContent = currentQ === questions.length - 1 ? 'إنهاء الاختبار' : 'التالي';
+
+      let html = `<div class="animate-fade-in">`;
+      // Question type badge
+      const typeLabel = q.type === 'mcq' ? 'اختيار من متعدد' : 'أكمل الفراغ';
+      const typeIcon = q.type === 'mcq' ? 'list' : 'edit-3';
+      html += `<div class="flex items-center gap-2 mb-4">
+        <span class="px-3 py-1 rounded-full text-xs" style="background: #d4af3722; color: #d4af37;">
+          <i data-lucide="${typeIcon}" style="width:12px;height:12px;display:inline;vertical-align:middle;margin-left:4px;"></i>
+          ${typeLabel}
+        </span>
+        <span class="text-xs" style="color: #6a6a8e;">سؤال ${toArabicNum(currentQ + 1)}</span>
+      </div>`;
+
+      html += `<h3 class="text-lg md:text-xl font-bold mb-6 leading-relaxed font-amiri" style="color: #e8d5a3;">${q.question}</h3>`;
+
+      if (q.type === 'mcq') {
+        html += `<div class="space-y-3">`;
+        q.options.forEach((opt, i) => {
+          let extraClass = '';
+          if (answered[currentQ]) {
+            if (i === q.correct) extraClass = 'correct';
+            else if (answers[currentQ] === i && i !== q.correct) extraClass = 'wrong';
+          } else if (answers[currentQ] === i) {
+            extraClass = 'selected';
+          }
+          const letter = ['أ', 'ب', 'ج', 'د'][i];
+          html += `<button onclick="selectOption(${i})" class="option-btn ${extraClass} w-full text-right p-4 rounded-xl flex items-start gap-3 animate-slide" style="animation-delay: ${i * 0.08}s; color: #e8d5a3; background: #12122a;" ${answered[currentQ] ? 'disabled' : ''}>
+            <span class="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0" style="background: ${extraClass === 'correct' ? '#10b98133' : extraClass === 'wrong' ? '#ef444433' : '#1a1a3e'}; color: ${extraClass === 'correct' ? '#10b981' : extraClass === 'wrong' ? '#ef4444' : '#d4af37'};">${letter}</span>
+            <span class="pt-1 text-sm md:text-base leading-relaxed">${opt}</span>
+          </button>`;
+        });
+        html += `</div>`;
+      } else if (q.type === 'fill') {
+        html += `<div class="space-y-4 p-4 rounded-xl" style="background: #12122a;">`;
+        q.blanks.forEach((_, i) => {
+          const val = answers[currentQ] ? (answers[currentQ][i] || '') : '';
+          let inputClass = 'fill-input';
+          if (answered[currentQ]) {
+            const userVal = (answers[currentQ] && answers[currentQ][i]) || '';
+            inputClass += isCorrectBlank(userVal, q.blanks[i]) ? ' correct-fill' : ' wrong-fill';
+          }
+          html += `<div class="flex items-center gap-3 animate-slide" style="animation-delay: ${i * 0.1}s;">
+            <span class="text-sm" style="color: #d4af37;">الفراغ ${toArabicNum(i + 1)}:</span>
+            <input type="text" class="${inputClass}" data-blank="${i}" value="${val}" placeholder="اكتب الإجابة..." ${answered[currentQ] ? 'disabled' : ''} oninput="saveFill(${i}, this.value)">
+            ${answered[currentQ] ? `<span class="text-xs" style="color: #10b981;">✓ ${q.blanks[i]}</span>` : ''}
+          </div>`;
+        });
+        html += `</div>`;
+      }
+
+      // Show explanation after answering
+      if (answered[currentQ]) {
+        html += `<div class="mt-4 p-4 rounded-xl animate-fade-in" style="background: #10b98115; border: 1px solid #10b98133;">
+          <div class="flex items-start gap-2">
+            <i data-lucide="info" style="width:18px;height:18px;color:#10b981;flex-shrink:0;margin-top:3px;"></i>
+            <p class="text-sm leading-relaxed" style="color: #a8d5c0;">${q.explanation}</p>
+          </div>
+        </div>`;
+      }
+
+      html += `</div>`;
+      area.innerHTML = html;
+      lucide.createIcons();
+    }
+
+    function isCorrectBlank(userVal, correctVal) {
+      const normalize = s => s.trim().replace(/[\u064B-\u065F\u0670]/g, '').replace(/[إأآا]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي');
+      return normalize(userVal) === normalize(correctVal);
+    }
+
+    function selectOption(idx) {
+      if (answered[currentQ]) return;
+      answers[currentQ] = idx;
+      renderQuestion();
+    }
+
+    function saveFill(blankIdx, val) {
+      if (!answers[currentQ]) answers[currentQ] = [];
+      answers[currentQ][blankIdx] = val;
+    }
+
+    function nextQuestion() {
+      const q = questions[currentQ];
+
+      if (!answered[currentQ]) {
+        // Check if answered
+        if (q.type === 'mcq' && answers[currentQ] === null) {
+          showFeedback('اختر إجابة أولاً', '#ef4444');
+          return;
+        }
+        if (q.type === 'fill') {
+          const blanks = answers[currentQ] || [];
+          if (blanks.length < q.blanks.length || blanks.some(b => !b || !b.trim())) {
+            showFeedback('أكمل جميع الفراغات', '#ef4444');
+            return;
+          }
+        }
+
+        // Grade
+        answered[currentQ] = true;
+        let isCorrect = false;
+        if (q.type === 'mcq') {
+          isCorrect = answers[currentQ] === q.correct;
+        } else if (q.type === 'fill') {
+          isCorrect = q.blanks.every((b, i) => isCorrectBlank(answers[currentQ][i] || '', b));
+        }
+        if (isCorrect) {
+          score++;
+          showFeedback('إجابة صحيحة! ✓', '#10b981');
+        } else {
+          showFeedback('إجابة خاطئة ✗', '#ef4444');
+        }
+        renderQuestion();
+        return;
+      }
+
+      if (currentQ < questions.length - 1) {
+        currentQ++;
+        renderQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function prevQuestion() {
+      if (currentQ > 0) {
+        currentQ--;
+        renderQuestion();
+      }
+    }
+
+    function showFeedback(msg, color) {
+      const fb = document.getElementById('feedbackMsg');
+      fb.textContent = msg;
+      fb.style.color = color;
+      fb.classList.remove('hidden');
+      setTimeout(() => fb.classList.add('hidden'), 2000);
+    }
+
+    function showResult() {
+      document.getElementById('examScreen').style.display = 'none';
+      document.getElementById('reviewScreen').style.display = 'none';
+      document.getElementById('resultScreen').style.display = 'flex';
+
+      const pct = Math.round((score / questions.length) * 100);
+      document.getElementById('resultScore').textContent = `${toArabicNum(score)} / ${toArabicNum(questions.length)}`;
+
+      let icon, msg;
+      if (pct >= 90) { icon = '🏆'; msg = 'ممتاز! أداء رائع ومتميز'; }
+      else if (pct >= 75) { icon = '🌟'; msg = 'جيد جدًا! استمر في التفوق'; }
+      else if (pct >= 60) { icon = '📚'; msg = 'جيد، راجع بعض النقاط'; }
+      else { icon = '💪'; msg = 'تحتاج لمزيد من المراجعة'; }
+
+      document.getElementById('resultIcon').textContent = icon;
+      document.getElementById('resultMsg').textContent = msg;
+
+      let details = `<div class="flex justify-between mb-2"><span>النسبة المئوية</span><span style="color:#d4af37;">${toArabicNum(pct)}٪</span></div>`;
+      details += `<div class="flex justify-between mb-2"><span>الإجابات الصحيحة</span><span style="color:#10b981;">${toArabicNum(score)}</span></div>`;
+      details += `<div class="flex justify-between"><span>الإجابات الخاطئة</span><span style="color:#ef4444;">${toArabicNum(questions.length - score)}</span></div>`;
+      document.getElementById('resultDetails').innerHTML = details;
+    }
+
+    function reviewAnswers() {
+      document.getElementById('resultScreen').style.display = 'none';
+      document.getElementById('reviewScreen').style.display = 'flex';
+      isReviewMode = true;
+
+      let html = '';
+      questions.forEach((q, idx) => {
+        let isCorrect = false;
+        if (q.type === 'mcq') isCorrect = answers[idx] === q.correct;
+        else if (q.type === 'fill') isCorrect = q.blanks.every((b, i) => isCorrectBlank((answers[idx] && answers[idx][i]) || '', b));
+
+        const statusColor = isCorrect ? '#10b981' : '#ef4444';
+        const statusIcon = isCorrect ? 'check-circle' : 'x-circle';
+
+        html += `<div class="p-4 rounded-xl animate-fade-in" style="background: #12122a; border: 1px solid ${statusColor}33; animation-delay: ${idx * 0.05}s;">
+          <div class="flex items-start gap-3 mb-3">
+            <i data-lucide="${statusIcon}" style="width:20px;height:20px;color:${statusColor};flex-shrink:0;margin-top:2px;"></i>
+            <div>
+              <span class="text-xs" style="color: #6a6a8e;">سؤال ${toArabicNum(idx + 1)}</span>
+              <p class="text-sm font-bold mt-1" style="color: #e8d5a3;">${q.question}</p>
+            </div>
+          </div>`;
+
+        if (q.type === 'mcq') {
+          html += `<div class="mr-8 space-y-1 text-sm">`;
+          if (!isCorrect) {
+            html += `<p style="color: #ef4444;">إجابتك: ${q.options[answers[idx]] || 'لم تُجب'}</p>`;
+          }
+          html += `<p style="color: #10b981;">الإجابة الصحيحة: ${q.options[q.correct]}</p>`;
+          html += `</div>`;
+        } else if (q.type === 'fill') {
+          html += `<div class="mr-8 space-y-1 text-sm">`;
+          q.blanks.forEach((b, i) => {
+            const userAns = (answers[idx] && answers[idx][i]) || 'لم تُجب';
+            const blankCorrect = isCorrectBlank(userAns, b);
+            if (!blankCorrect) {
+              html += `<p style="color: #ef4444;">فراغ ${toArabicNum(i + 1)}: ${userAns}</p>`;
+            }
+            html += `<p style="color: #10b981;">الصحيح: ${b}</p>`;
+          });
+          html += `</div>`;
+        }
+
+        html += `<div class="mr-8 mt-2 p-2 rounded-lg text-xs" style="background: #1a1a3e; color: #8a8aae;">${q.explanation}</div>`;
+        html += `</div>`;
+      });
+
+      document.getElementById('reviewContent').innerHTML = html;
+      lucide.createIcons();
+    }
+
+    function restartExam() {
+      document.getElementById('resultScreen').style.display = 'none';
+      document.getElementById('startScreen').style.display = 'flex';
+    }
+
+    // Init
+    lucide.createIcons();
+    applyConfig(defaultConfig);
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9dc7935b6673b5f9',t:'MTc3MzUzNjM2OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
